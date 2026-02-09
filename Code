@@ -1,0 +1,75 @@
+#define echoPin 6
+#define trigPin 7
+#define buzzerPin 8
+#define ledGreen 9
+#define ledYellow 10
+#define ledRed 11
+
+int maxRange = 50; // Maksimum 50 cm
+int minRange = 0;
+
+void setup() {
+    pinMode(trigPin, OUTPUT);
+    pinMode(echoPin, INPUT);
+    pinMode(buzzerPin, OUTPUT);
+    pinMode(ledGreen, OUTPUT);
+    pinMode(ledYellow, OUTPUT);
+    pinMode(ledRed, OUTPUT);
+}
+
+void loop() {
+    int olcum = mesafe(maxRange, minRange);
+
+    if (olcum == 0) {
+        digitalWrite(ledGreen, LOW);
+        digitalWrite(ledYellow, LOW);
+        digitalWrite(ledRed, LOW);
+    } 
+    else if (olcum > 30) {
+        // Güvenli bölge
+        digitalWrite(ledGreen, HIGH);
+        digitalWrite(ledYellow, LOW);
+        digitalWrite(ledRed, LOW);
+        melodi(olcum * 10);
+    } 
+    else if (olcum <= 30 && olcum > 15) {
+        // Dikkat
+        digitalWrite(ledGreen, LOW);
+        digitalWrite(ledYellow, HIGH);
+        digitalWrite(ledRed, LOW);
+        melodi(olcum * 5); 
+    } 
+    else if (olcum <= 15) {
+        // Tehlike
+        digitalWrite(ledGreen, LOW);
+        digitalWrite(ledYellow, LOW);
+        digitalWrite(ledRed, HIGH);
+        melodi(olcum * 2);
+    }
+}
+
+int mesafe(int maxRange, int minRange) {
+    long duration, distance;
+
+    digitalWrite(trigPin, LOW);
+    delayMicroseconds(2);
+    digitalWrite(trigPin, HIGH);
+    delayMicroseconds(10);
+    digitalWrite(trigPin, LOW);
+
+    duration = pulseIn(echoPin, HIGH);
+    distance = duration / 58.2;
+    delay(50);
+
+    if (distance >= maxRange || distance <= minRange)
+        return 0;
+    
+    return distance;
+}
+
+void melodi(int dly) {
+    tone(buzzerPin, 440);
+    delay(dly);
+    noTone(buzzerPin);
+    delay(dly);
+}
